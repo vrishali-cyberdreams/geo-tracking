@@ -42,7 +42,7 @@ export default function CustomSidebarFooter({
             <DropdownMenuTrigger asChild>
               <Button
                 variant={"outline"}
-                className="flex gap-3 p-2 bg-sidebar w-full h-full hover:bg-sidebar-accent hover:text-primary border border-accent/30"
+                className="flex gap-3 p-2 bg-sidebar w-full h-full hover:bg-sidebar-accent hover:text-primary"
               >
                 <Avatar>
                   <AvatarFallback className="bg-primary/30">
@@ -79,7 +79,7 @@ export default function CustomSidebarFooter({
                   variant={"ghost"}
                   onClick={handleLogout}
                 >
-                  <LogOut className="text-sidebar-foreground group-hover:text-sidebar-primary" />
+                  <LogOut />
                   Sign out
                 </Button>
               </DropdownMenuItem>
