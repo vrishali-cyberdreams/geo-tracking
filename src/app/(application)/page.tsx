@@ -1,4 +1,6 @@
 import { auth } from "@/lib/auth";
+import { TRoleLiteral } from "@/lib/rbac";
+import { roleHierarchyManager } from "@/lib/rbac/hierarchy";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -7,7 +9,8 @@ export default async function Page() {
     headers: await headers(),
   });
 
-  if (!session || !session.user) {
+  const userInfo = roleHierarchyManager.getRoleInfo(session?.user.role as TRoleLiteral);
+  if (!session || !session.user || (userInfo && userInfo.level < 80)) {
     redirect("/user");
   }
 
