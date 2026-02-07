@@ -10,7 +10,11 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@prisma/client": "~6.19.2",
+    "better-auth": "^1.4.18",
+    "dotenv": "^17.2.4",
     "next": "16.1.6",
+    "prisma": "~6.19.2",
     "react": "19.2.3",
     "react-dom": "19.2.3"
   },
