@@ -50,6 +50,7 @@ export const developer = accessControl.newRole({
     "delete",
     "page"
   ],
+  employee: ["list", "create", "update", "delete"]
 });
 
 export const owner = accessControl.newRole({
@@ -72,6 +73,7 @@ export const owner = accessControl.newRole({
     "delete",
     "page",
   ],
+  employee: ["list", "create", "update", "delete"]
 });
 
 export const admin = accessControl.newRole({
@@ -88,6 +90,7 @@ export const admin = accessControl.newRole({
     "delete",
     "page",
   ],
+  employee: ["list", "create", "update", "delete"]
 });
 
 export const user = accessControl.newRole({

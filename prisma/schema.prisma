@@ -18,13 +18,33 @@ model Location {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
   // Inputs
-  lat  Float
-  long Float
+  lat         Float
+  long        Float
+  displayName String
 
   // Metadata
-  userId    String
-  user      User    @relation(fields: [userId], references: [id], onDelete: Restrict)
-  isDeleted Boolean @default(false)
+  employeeId String   @db.ObjectId
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+  isDeleted  Boolean  @default(false)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// EMPLOYEE SCHEMA
+model Employee {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  // Inputs
+  firstName   String
+  lastName    String
+  email       String
+  contact     String
+  designation String
+
+  //Relations
+  Location Location[]
 
   // Timestamps
   createdAt DateTime @default(now())
@@ -33,20 +53,19 @@ model Location {
 
 // USER MANAGEMENT
 model User {
-  id            String     @id @map("_id")
+  id            String    @id @map("_id")
   name          String
   email         String
-  emailVerified Boolean    @default(false)
+  emailVerified Boolean   @default(false)
   image         String?
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
   role          String?
-  banned        Boolean?   @default(false)
+  banned        Boolean?  @default(false)
   banReason     String?
   banExpires    DateTime?
   sessions      Session[]
   accounts      Account[]
-  Location      Location[]
 
   @@unique([email])
   @@map("user")

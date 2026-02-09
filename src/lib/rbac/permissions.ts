@@ -28,10 +28,12 @@ export const statements = {
     "delete",
     "page",
   ],
+  employee: ["list", "create", "update", "delete"]
 };
 
 export const baseUserStatement = {
   user: ["set-self-password", "update-self"],
+  employee: ["list"]
 };
 
 export const accessControl = createAccessControl(statements);
