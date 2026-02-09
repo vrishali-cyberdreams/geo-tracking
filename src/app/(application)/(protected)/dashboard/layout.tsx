@@ -2,8 +2,6 @@ import AppSidebar from "@/components/sidbar/appSidebar/appSidebar";
 import { CustomTrigger } from "@/components/sidbar/customSidebarTrigger";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { auth } from "@/lib/auth";
-import { TRoleLiteral } from "@/lib/rbac";
-import { roleHierarchyManager } from "@/lib/rbac/hierarchy";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -18,11 +16,6 @@ export default async function Layout({
 
   if (!session || !session.user) {
     redirect("/login");
-  }
-
-  const userInfo = roleHierarchyManager.getRoleInfo(session.user.role as TRoleLiteral);
-  if(userInfo && userInfo.level < 80){
-    redirect("/user");
   }
 
   return (

@@ -1,4 +1,4 @@
-import MarkLocation from "@/components/user/markLocation";
+import MarkLocation from "@/components/employee/markLocation";
 
 export default async function page() {
   return (

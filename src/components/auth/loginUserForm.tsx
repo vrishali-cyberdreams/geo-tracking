@@ -113,7 +113,7 @@ export default function LoginUserForm() {
                             "SignIn"
                           )}
                         </Button>
-                        <p className="text-muted-foreground text-sm text-center">Login as a user? <Link href="/user" className="underline">Click</Link> here</p>
+                        <p className="text-muted-foreground text-sm text-center">Login as a user? <Link href="/employee" className="underline">Click</Link> here</p>
                       </div>
                     </div>
                   </form>
