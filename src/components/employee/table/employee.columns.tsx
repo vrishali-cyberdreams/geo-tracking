@@ -1,12 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { User } from "@prisma/client";
+import { Employee } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
-import { UsersActions } from "./users.columnActions";
+import { EmployeeActions } from "./employee.columnActions";
 
-export const userColumns: ColumnDef<User>[] =
+export const employeeColumns: ColumnDef<Employee>[] =
   [
     {
       id: "serialNo",
@@ -26,7 +26,7 @@ export const userColumns: ColumnDef<User>[] =
     },
     {
       id: "name",
-      accessorFn: (row) => row.name,
+      accessorFn: (row) => row.firstName + " " + row.lastName,
       header: ({ column }) => {
         return (
           <Button
@@ -39,7 +39,7 @@ export const userColumns: ColumnDef<User>[] =
           </Button>
         );
       },
-      cell: ({ row }) => <div className="px-4">{row.original.name}</div>,
+      cell: ({ row }) => <div className="px-4">{row.original.firstName + " " + row.original.lastName}</div>,
     },
     {
       id: "email",
@@ -59,10 +59,44 @@ export const userColumns: ColumnDef<User>[] =
       cell: ({ row }) => <div className="px-4">{row.original.email}</div>,
     },
     {
+      id: "contact",
+      accessorFn: (row) => row.contact,
+      header: ({ column }) => {
+        return (
+          <Button
+            className="font-bold w-full justify-between"
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Contact
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
+      cell: ({ row }) => <div className="px-4">{row.original.contact}</div>,
+    },
+    {
+      id: "designation",
+      accessorFn: (row) => row.designation,
+      header: ({ column }) => {
+        return (
+          <Button
+            className="font-bold w-full justify-between"
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Designation
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
+      cell: ({ row }) => <div className="px-4">{row.original.designation}</div>,
+    },
+    {
       id: "actions",
       header: "Actions",
       cell: ({ row }) => (
-        <UsersActions userId={row.original.id} />
+        <EmployeeActions employeeId={row.original.id} />
       ),
     },
   ];

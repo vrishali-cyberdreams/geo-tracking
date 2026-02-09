@@ -53,18 +53,27 @@ export default function MarkLocation() {
         const latitude = position.coords.latitude;
         const longitude = position.coords.longitude;
 
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`,
+        );
+        const data = await res.json();
+        const displayName = data.display_name || 'Unknown';
+
         const response = await createLocation({
           email: values.email,
           lat: latitude,
-          long: longitude
+          long: longitude,
+          displayName: displayName
         });
 
         if (response.status == 'ERROR') {
+          setLoading(false);
           toast.error(response.message);
-        } else {
-          toast.success("Location marked successfully");
+          return;
         }
+
         setLoading(false);
+        toast.success("Location marked successfully");
         const expiresAt = Date.now() + LOCK_DURATION_MS;
         localStorage.setItem(MARK_LOCATION_KEY, expiresAt.toString());
       },
@@ -96,7 +105,7 @@ export default function MarkLocation() {
         <Card>
           <div className="py-4 px-4">
             <CardHeader className="mb-6 text-center">
-              <CardTitle>Welcome Back - User</CardTitle>
+              <CardTitle>Welcome Back - Employee</CardTitle>
             </CardHeader>
             <CardContent>
               <FieldGroup className="gap-2">
