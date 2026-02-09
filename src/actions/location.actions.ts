@@ -10,7 +10,7 @@ export async function createLocation(data: TLocation): Promise<Response> {
   try {
     const { email, ...rest } = data;
 
-    const user = await prisma.user.findFirst({
+    const employee = await prisma.employee.findFirst({
       where: {
         email: email
       },
@@ -19,8 +19,8 @@ export async function createLocation(data: TLocation): Promise<Response> {
       }
     });
 
-    if (!user) {
-      return Response.error("User with this email does not exist");
+    if (!employee) {
+      return Response.error("Employee with this email does not exist");
     }
 
     await prisma.location.create({
@@ -28,7 +28,8 @@ export async function createLocation(data: TLocation): Promise<Response> {
         ...rest,
         lat: rest.lat ?? 0,
         long: rest.long ?? 0,
-        userId: user.id
+        displayName: rest.displayName ?? "",
+        employeeId: employee.id
       }
     });
 
@@ -42,21 +43,21 @@ export async function createLocation(data: TLocation): Promise<Response> {
   }
 }
 
-// GET USER LOCATIONS
-export async function getUserLocations(userId: string): Promise<Response<Location[]>> {
+// GET EMPLOYEE LOCATIONS
+export async function getLocations(employeeId: string): Promise<Response<Location[]>> {
   try {
     const locations = await prisma.location.findMany({
       where: {
-        userId: userId
+        employeeId: employeeId
       }
     });
 
     return Response.success(locations);
   } catch (error) {
-    console.log(`LOCATION_ACTION/GET_USER_LOCATIONS: ${(error as Error).message}`);
+    console.log(`LOCATION_ACTION/GET_EMPLOYEE_LOCATIONS: ${(error as Error).message}`);
     if (process.env.NODE_ENV == "development") {
       return Response.error((error as Error).message);
     }
-    return Response.error("An error occurred while fetching user locations");
+    return Response.error("An error occurred while fetching employee locations");
   }
 }
