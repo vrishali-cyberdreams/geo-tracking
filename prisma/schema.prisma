@@ -39,7 +39,7 @@ model Employee {
   // Inputs
   firstName   String
   lastName    String
-  email       String
+  email       String @unique
   contact     String
   designation String
 

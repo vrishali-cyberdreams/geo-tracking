@@ -41,6 +41,20 @@ export async function createEmployee(
   data: Partial<Employee>,
 ): Promise<Response> {
   try {
+
+    const existingEmployee = await prisma.employee.findFirst({
+      where:{
+        email: data.email
+      },
+      select:{
+        id: true
+      }
+    });
+
+    if(!existingEmployee){
+      return Response.error("Employee with this email already exists");
+    }
+
     const employee = await prisma.employee.create({
       data: {
         ...data,
