@@ -1,3 +1,3 @@
 export const rpName = "Bhumi Attendance";
-export const rpID = "migratory-unadministratively-blanche.ngrok-free.dev";          // ✅ hostname ONLY
-export const origin = "https://migratory-unadministratively-blanche.ngrok-free.dev"; // ✅ full origin
+export const rpID = "geo-tracking.app";          // ✅ hostname ONLY
+export const origin = "https://geo-tracking.app"; // ✅ full origin
