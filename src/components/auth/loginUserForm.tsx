@@ -21,6 +21,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { FieldGroup } from "@/components/ui/field";
+import Image from "next/image";
 
 export default function LoginUserForm() {
   const form = useForm<z.input<typeof signInUserSchema>>({
@@ -59,7 +60,14 @@ export default function LoginUserForm() {
       <div className={cn("flex flex-col gap-6")}>
         <Card>
           <div className="py-4 px-4">
-            <CardHeader className="mb-6 text-center">
+            <CardHeader className="flex flex-col items-center mb-6 text-center">
+              <Image
+                src="/humilogo.png"
+                width={200}
+                height={100}
+                alt="Bhumi"
+                className="object-center object-contain"
+              />
               <CardTitle>Welcome Back - Admin</CardTitle>
             </CardHeader>
             <CardContent>

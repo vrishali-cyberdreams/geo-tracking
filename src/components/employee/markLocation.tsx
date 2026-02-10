@@ -21,6 +21,7 @@ import { FieldGroup } from "@/components/ui/field";
 import { locationSchema } from "@/lib/schema/location.schema";
 import { createLocation } from "@/actions/location.actions";
 import { startAuthentication } from "@simplewebauthn/browser";
+import Image from "next/image";
 
 const MARK_LOCATION_KEY = "mark_location_lock";
 const LOCK_DURATION_MS = 8 * 60 * 60 * 1000; // 8 hours
@@ -139,7 +140,14 @@ export default function MarkLocation() {
       <div className={cn("flex flex-col gap-6")}>
         <Card>
           <div className="py-4 px-4">
-            <CardHeader className="mb-6 text-center">
+            <CardHeader className="flex flex-col items-center mb-6 text-center">
+              <Image
+                src="/humilogo.png"
+                width={200}
+                height={100}
+                alt="Bhumi"
+                className="object-center object-contain"
+              />
               <CardTitle>Welcome Back - Employee</CardTitle>
             </CardHeader>
             <CardContent>

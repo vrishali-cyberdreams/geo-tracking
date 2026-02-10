@@ -22,6 +22,7 @@ import { redirect } from "next/navigation";
 import { registerEmployeeSchema } from "@/lib/schema/employee.schema";
 import { createEmployee } from "@/actions/employee.actions";
 import { startRegistration } from "@simplewebauthn/browser";
+import Image from "next/image";
 
 export default function RegisterEmployeeForm() {
   const form = useForm<z.input<typeof registerEmployeeSchema>>({
@@ -83,8 +84,15 @@ export default function RegisterEmployeeForm() {
     <div className={cn("flex flex-col gap-6")}>
       <Card className="">
         <div className="py-4 px-4">
-          <CardHeader className="mb-6 text-center">
-            <CardTitle className="text-xl">Welcome to Bhumi</CardTitle>
+          <CardHeader className="flex flex-col items-center mb-6 text-center">
+            <Image
+              src="/humilogo.png"
+              width={200}
+              height={100}
+              alt="Bhumi"
+              className="object-center object-contain"
+            />
+            <CardTitle className="text-xl">Welcome - Employee Registration</CardTitle>
           </CardHeader>
           <CardContent>
             <FieldGroup className="gap-2">
@@ -104,7 +112,7 @@ export default function RegisterEmployeeForm() {
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onSubmit)}>
                     <div className="flex flex-col gap-6">
-                      <div className="grid lg:grid-cols-2 grid-cols-1 gap-2">
+                      <div className="grid lg:grid-cols-2 grid-cols-1 gap-4">
                         <div className="grid gap-3">
                           <FormField
                             control={form.control}
