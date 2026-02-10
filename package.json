@@ -12,6 +12,8 @@
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
     "@prisma/client": "~6.19.2",
+    "@simplewebauthn/browser": "^13.2.2",
+    "@simplewebauthn/server": "^13.2.2",
     "@tanstack/react-table": "^8.21.3",
     "better-auth": "^1.4.18",
     "class-variance-authority": "^0.7.1",
