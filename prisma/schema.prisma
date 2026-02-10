@@ -43,6 +43,12 @@ model Employee {
   contact     String
   designation String
 
+  // 🔐 WebAuthn (REQUIRED)
+  credentialId Bytes? // device identifier
+  publicKey    Bytes? // device public key
+  counter      Int? // signature counter
+  token        String? // temporary challenge
+
   //Relations
   Location Location[]
 

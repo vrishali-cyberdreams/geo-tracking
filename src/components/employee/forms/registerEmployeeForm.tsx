@@ -21,6 +21,7 @@ import { Field, FieldGroup } from "@/components/ui/field";
 import { redirect } from "next/navigation";
 import { registerEmployeeSchema } from "@/lib/schema/employee.schema";
 import { createEmployee } from "@/actions/employee.actions";
+import { startRegistration } from "@simplewebauthn/browser";
 
 export default function RegisterEmployeeForm() {
   const form = useForm<z.input<typeof registerEmployeeSchema>>({
@@ -38,10 +39,43 @@ export default function RegisterEmployeeForm() {
     setLoading(true);
     const response = await createEmployee(values);
     if (response.status == 'ERROR') {
+      setLoading(false);
       toast.error(response.message);
-    } else {
-      toast.success("Employee registered successfully");
+      return;
     }
+
+    const optionsRes = await fetch("/api/webauthn/register/options", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: values.email }),
+    });
+
+    if (!optionsRes.ok) {
+      toast.error("Failed to initiate device registration");
+      return;
+    }
+
+    const options = await optionsRes.json();
+
+    // 3️⃣ Trigger biometric / device verification
+    const credential = await startRegistration(options);
+
+    // 4️⃣ Verify & save credential on backend
+    const verifyRes = await fetch("/api/webauthn/register/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: values.email,
+        credential,
+      }),
+    });
+
+    if (!verifyRes.ok) {
+      toast.error("Device verification failed");
+      return;
+    }
+
+    toast.success("Employee registered successfully");
     setLoading(false);
   };
 
