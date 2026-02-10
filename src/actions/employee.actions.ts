@@ -51,7 +51,7 @@ export async function createEmployee(
       }
     });
 
-    if(!existingEmployee){
+    if(existingEmployee){
       return Response.error("Employee with this email already exists");
     }
 
