@@ -39,7 +39,7 @@ export async function getAllEmployees(
 // CREATE EMPLOYEE
 export async function createEmployee(
   data: Partial<Employee>,
-): Promise<Response> {
+): Promise<Response<string>> {
   try {
 
     const existingEmployee = await prisma.employee.findFirst({
@@ -70,7 +70,7 @@ export async function createEmployee(
       return Response.error("Employee creation failed");
     }
 
-    return Response.success(undefined, "Employee created successfully");
+    return Response.success(employee.id, "Employee created successfully");
   } catch (error) {
     console.log(`EMPLOYEE_ACTION/CREATE_EMPLOYEE: ${(error as Error).message}`);
     if (process.env.NODE_ENV === "development") {
@@ -78,6 +78,43 @@ export async function createEmployee(
     }
     return Response.error(
       "Something went wrong while creating the employee, please try again!",
+    );
+  }
+}
+
+// DELETE EMPLOYEE
+export async function deleteEmployee(
+  employeeId: string
+): Promise<Response> {
+  try {
+
+    const existingEmployee = await prisma.employee.findFirst({
+      where:{
+        id: employeeId
+      },
+      select:{
+        id: true
+      }
+    });
+
+    if(!existingEmployee){
+      return Response.error("Employee not found");
+    }
+
+    await prisma.employee.delete({
+      where:{
+        id: employeeId
+      }
+    });
+
+    return Response.success(undefined, "Employee deleted successfully");
+  } catch (error) {
+    console.log(`EMPLOYEE_ACTION/DELETE_EMPLOYEE: ${(error as Error).message}`);
+    if (process.env.NODE_ENV === "development") {
+      return Response.error((error as Error).message);
+    }
+    return Response.error(
+      "Something went wrong while deleting the employee, please try again!",
     );
   }
 }
