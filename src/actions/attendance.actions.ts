@@ -42,7 +42,153 @@ export async function markAttendance({
           };
         }
 
-        // 2. IF EMPLOYEE EXISTS, CREATE ATTENDANCE FOR EMPLOYEE
+        // 2. CHECK IF ATTENDANCE EXISTS
+        const now = new Date();
+
+        // Start of today (00:00:00)
+        const startOfDay = new Date(now);
+        startOfDay.setHours(0, 0, 0, 0);
+
+        // Start of tomorrow (exclusive upper bound)
+        const endOfDay = new Date(startOfDay);
+        endOfDay.setDate(endOfDay.getDate() + 1);
+
+        const existingAttendance = await tx.attendance.findFirst({
+          where: {
+            employeeId: employee.id,
+            createdAt: {
+              gte: startOfDay,
+              lt: endOfDay,
+            },
+          },
+        });
+
+        // 3. IF ATTENDANCE EXISTS
+        if (existingAttendance) {
+          // 4. CHECK IF FULL LEAVE 
+          if (existingAttendance.leaveStatus == 'FULL') {
+            return {
+              status: "error",
+              message: "Cannot punch on full leave",
+            };
+          }
+
+          // 5. IF EMPLOYEE IS TRYING TO PUNCH IN
+          if (punchData.type == 'IN') {
+            const punchIn = await tx.punch.findFirst({
+              where: {
+                attendanceId: existingAttendance.id,
+                type: 'IN'
+              }
+            });
+
+            if (punchIn) {
+              return {
+                status: "error",
+                message: "Already punched In for today",
+              };
+            } else {
+              await tx.punch.create({
+                data: {
+                  ...punchData,
+                  type: 'IN',
+                  attendanceId: existingAttendance.id
+                }
+              });
+              return {
+                status: "success",
+                message: "Attendance marked successfully",
+              };
+            }
+          }
+
+          // 6. IF EMPLOYEE IS TRYING TO PUNCH OUT
+          if (punchData.type == 'OUT') {
+            const punchIn = await tx.punch.findFirst({
+              where: {
+                attendanceId: existingAttendance.id,
+                type: 'IN'
+              }
+            });
+
+            if (!punchIn) {
+              return {
+                status: "error",
+                message: "Cannot punch Out before punching IN",
+              };
+            }
+
+            const punchOut = await tx.punch.findFirst({
+              where: {
+                attendanceId: existingAttendance.id,
+                type: 'OUT'
+              }
+            });
+
+            if (punchOut) {
+              return {
+                status: "error",
+                message: "Already punched Out for today",
+              };
+            } else {
+              const newPunchut = await tx.punch.create({
+                data: {
+                  ...punchData,
+                  type: 'OUT',
+                  attendanceId: existingAttendance.id
+                }
+              });
+
+              // TIME CALCULATIONS
+              const punchInTime = new Date(punchIn.createdAt);
+              const punchOutTime = new Date(newPunchut.createdAt);
+
+              // ---- Create today's 6 PM reference ----
+              const sixPM = new Date(punchOutTime);
+              sixPM.setHours(18, 0, 0, 0); // 6:00 PM
+
+              let totalWorkMinutes = 0;
+              let overtimeMinutes = 0;
+
+              // ---- Case 1: Punch out before or at 6 PM ----
+              if (punchOutTime <= sixPM) {
+                totalWorkMinutes = Math.floor(
+                  (punchOutTime.getTime() - punchInTime.getTime()) / (1000 * 60)
+                );
+                overtimeMinutes = 0;
+              }
+              // ---- Case 2: Punch out after 6 PM ----
+              else {
+                // Working minutes till 6 PM
+                totalWorkMinutes = Math.floor(
+                  (sixPM.getTime() - punchInTime.getTime()) / (1000 * 60)
+                );
+
+                // Overtime minutes after 6 PM
+                overtimeMinutes = Math.floor(
+                  (punchOutTime.getTime() - sixPM.getTime()) / (1000 * 60)
+                );
+              }
+
+              await tx.attendance.update({
+                where: {
+                  id: existingAttendance.id
+                },
+                data: {
+                  earlyOutReason: attendanceData.earlyOutReason,
+                  overtimeMinutes,
+                  totalWorkMinutes
+                }
+              });
+              return {
+                status: "success",
+                message: "Attendance marked successfully",
+              };
+            }
+          }
+        }
+
+        // 8. IF EMPLOYEE EXISTS AND ATTENDANCE DOESNT, THEN CREATE ATTENDANCE FOR EMPLOYEE
         const attendance = await tx.attendance.create({
           data: {
             ...attendanceData,
@@ -57,10 +203,19 @@ export async function markAttendance({
           };
         }
 
-        // 3. IF ATTENDANCE IS MARKED, ATTACH PUNCH TO ATTENDANCE
+        // 9. MARK FULL LEAVE IF NO PUNCH
+        if (!punchData.type) {
+          return {
+            status: "success",
+            message: "Full Leave marked successfully",
+          };
+        }
+
+        // 10. IF ATTENDANCE IS MARKED, ATTACH PUNCH TO ATTENDANCE
         const punch = await tx.punch.create({
           data: {
             ...punchData,
+            type: punchData.type,
             attendanceId: attendance.id
           }
         });
