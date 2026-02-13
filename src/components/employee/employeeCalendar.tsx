@@ -1,7 +1,5 @@
 "use client";
 
-import { getLocations } from "@/actions/location.actions";
-import { Location } from "@prisma/client";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { format } from 'date-fns';
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
@@ -10,30 +8,49 @@ import { CalendarIcon } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 import { Calendar } from "../ui/calendar";
 import { CalendarDay, Modifiers } from "react-day-picker";
+import { getEmployeeById } from "@/actions/employee.actions";
+import { AttendanceWithRelations } from "@/actions/attendance.actions";
+import { Punch } from "@prisma/client";
 
 export function EmployeeLocationCalendar({ employeeId }: { employeeId: string }) {
-  const [locations, setLocations] = useState<Location[]>([]);
+  const [attendance, setAttendance] = useState<AttendanceWithRelations[]>([]);
 
   useEffect(() => {
-    const fetchLocations = async () => {
-      const res = await getLocations(employeeId);
+    const fetchEmployee = async () => {
+      const res = await getEmployeeById(employeeId);
       if (res.data) {
-        setLocations(res.data);
+        setAttendance(res.data.attendance);
       }
     };
-    fetchLocations();
+    fetchEmployee();
   }, [employeeId]);
 
   // Group by date (sync now)
-  const locationsByDate = useMemo(() => {
-    const map = new Map<string, Location[]>();
-    locations.forEach(loc => {
-      const key = format(new Date(loc.createdAt), "yyyy-MM-dd");
+  // const locationsByDate = useMemo(() => {
+  //   const map = new Map<string, Location[]>();
+  //   locations.forEach(loc => {
+  //     const key = format(new Date(loc.createdAt), "yyyy-MM-dd");
+  //     if (!map.has(key)) map.set(key, []);
+  //     map.get(key)!.push(loc);
+  //   });
+  //   return map;
+  // }, [locations]);
+
+  const punchesByDate = useMemo(() => {
+    const map = new Map<string, Punch[]>();
+
+    attendance.forEach(day => {
+      // group key comes from attendance.createdAt
+      const key = format(new Date(day.createdAt), "yyyy-MM-dd");
+
       if (!map.has(key)) map.set(key, []);
-      map.get(key)!.push(loc);
+
+      // push all punches of that attendance
+      map.get(key)!.push(...day.punch);
     });
+
     return map;
-  }, [locations]);
+  }, [attendance]);
 
   const DayButtonWrapper = useCallback(({
     day,
@@ -47,7 +64,7 @@ export function EmployeeLocationCalendar({ employeeId }: { employeeId: string })
   }) => {
     const date = day.date;
     const key = format(date, "yyyy-MM-dd");
-    const dayLocs = locationsByDate.get(key);
+    const dayLocs = punchesByDate.get(key);
 
     if (!dayLocs?.length) {
       return (
@@ -85,7 +102,7 @@ export function EmployeeLocationCalendar({ employeeId }: { employeeId: string })
         </Tooltip>
       </TooltipProvider>
     );
-  }, [locationsByDate]);
+  }, [punchesByDate]);
 
   return (
     <Popover>

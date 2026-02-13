@@ -84,8 +84,9 @@ export default function RegisterEmployeeForm() {
         return;
       }
 
-      toast.success("Employee registered successfully");
       setLoading(false);
+      toast.success("Employee registered successfully");
+      redirect('/employee')
     } catch (error) {
       await deleteEmployee(response.data ?? "")
       setLoading(false);
@@ -201,7 +202,7 @@ export default function RegisterEmployeeForm() {
                             "SignUp"
                           )}
                         </Button>
-                        <p className="text-muted-foreground text-sm text-center">Already have an account? <Link href="/employee" className="underline">Mark Location</Link> here</p>
+                        <p className="text-muted-foreground text-sm text-center">Already have an account? <Link href="/employee" className="underline">Punch</Link> here</p>
                         <p className="text-muted-foreground text-sm text-center">Login as an admin? <Link href="/login" className="underline">Click</Link> here</p>
                       </div>
                     </div>
