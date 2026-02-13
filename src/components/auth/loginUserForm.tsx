@@ -22,9 +22,11 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { FieldGroup } from "@/components/ui/field";
 import Image from "next/image";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 export default function LoginUserForm() {
   const form = useForm<z.input<typeof signInUserSchema>>({
+    resolver: zodResolver(signInUserSchema),
     defaultValues: {
       email: "",
       password: "",

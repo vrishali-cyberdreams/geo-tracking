@@ -15,9 +15,11 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 export default function RegisterUserForm() {
   const form = useForm<z.input<typeof registerUserSchema>>({
+    resolver: zodResolver(registerUserSchema),
     defaultValues: {
       email: "",
       firstName: "",
