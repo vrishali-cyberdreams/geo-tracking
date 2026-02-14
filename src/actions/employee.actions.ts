@@ -92,6 +92,37 @@ export async function getEmployeeById(
   }
 }
 
+// GET EMPLOYEE INFORMATION
+export async function getEmployeeByEmail(
+  email: string
+): Promise<Response<string>> {
+  try {
+
+    const employee = await prisma.employee.findFirst({
+      where: {
+        email: email
+      },
+      select:{
+        id: true
+      }
+    });
+
+    if (!employee) {
+      return Response.error("Employee not found");
+    }
+
+    return Response.success(employee.id);
+  } catch (error) {
+    console.log(`EMPLOYEE_ACTION/GET_EMPLOYEE_BY_EMAIL: ${(error as Error).message}`);
+    if (process.env.NODE_ENV === "development") {
+      return Response.error((error as Error).message);
+    }
+    return Response.error(
+      "Something went wrong while fetching the employee, please try again!",
+    );
+  }
+}
+
 // CREATE EMPLOYEE
 export async function createEmployee(
   data: TEmployee,

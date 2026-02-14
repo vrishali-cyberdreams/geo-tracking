@@ -15,11 +15,11 @@ export type AttendanceWithRelations = Attendance & {
 export async function markAttendance({
   punchData,
   attendanceData,
-  employeeEmail,
+  employeeId,
 }: {
   punchData: TPunch;
   attendanceData: TAttendance;
-  employeeEmail: string;
+  employeeId: string;
 }): Promise<Response> {
   try {
     const result: { status: "error" | "success"; message: string } =
@@ -28,7 +28,7 @@ export async function markAttendance({
         // 1. FIND EMPLOYEE WITH GIVEN EMAIL
         const employee = await tx.employee.findFirst({
           where: {
-            email: employeeEmail
+            id: employeeId
           },
           select: {
             id: true
@@ -247,21 +247,43 @@ export async function markAttendance({
   }
 }
 
-// GET EMPLOYEE ATTENDANCE
-// export async function getLocations(employeeId: string): Promise<Response<Location[]>> {
-//   try {
-//     const locations = await prisma.location.findMany({
-//       where: {
-//         employeeId: employeeId
-//       }
-//     });
+// GET EMPLOYEE TODAY'S ATTENDANCE
+export async function getEmployeeAttendance(employeeId: string): Promise<Response<AttendanceWithRelations>> {
+  try {
+    // CHECK IF ATTENDANCE EXISTS
+    const now = new Date();
 
-//     return Response.success(locations);
-//   } catch (error) {
-//     console.log(`LOCATION_ACTION/GET_EMPLOYEE_LOCATIONS: ${(error as Error).message}`);
-//     if (process.env.NODE_ENV == "development") {
-//       return Response.error((error as Error).message);
-//     }
-//     return Response.error("An error occurred while fetching employee locations");
-//   }
-// }
+    // Start of today (00:00:00)
+    const startOfDay = new Date(now);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    // Start of tomorrow (exclusive upper bound)
+    const endOfDay = new Date(startOfDay);
+    endOfDay.setDate(endOfDay.getDate() + 1);
+
+    const attendance = await prisma.attendance.findFirst({
+      where: {
+        employeeId: employeeId,
+        createdAt: {
+          gte: startOfDay,
+          lt: endOfDay,
+        },
+      },
+      include: {
+        punch: true
+      }
+    });
+
+    if (!attendance) {
+      return Response.error("Attendance not found");
+    }
+
+    return Response.success(attendance);
+  } catch (error) {
+    console.log(`ATTENDANCE_ACTION/GET_EMPLOYEE_ATTENDANCE: ${(error as Error).message}`);
+    if (process.env.NODE_ENV == "development") {
+      return Response.error((error as Error).message);
+    }
+    return Response.error("An error occurred while fetching employee attendance");
+  }
+}
