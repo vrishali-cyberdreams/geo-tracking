@@ -5,11 +5,19 @@ import { reportColumns } from "./report.columns";
 
 export type ReportType = {
   date: string;
-  punchIn: string;
-  punchOut: string;
+  punchIn?: {
+    location: string;
+    time: string;
+  };
+  punchOut?: {
+    location: string;
+    time: string;
+  };
   workingHours: string;
   overtimeHours: string;
   leaveStatus: string;
+  lateInReason?: string;
+  earlyOutReason?: string;
 };
 
 export function ReportTable({

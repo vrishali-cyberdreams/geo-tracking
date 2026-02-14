@@ -27,20 +27,26 @@ export const getMonthlyTableData = (
         date: new Date(att.createdAt).toLocaleDateString("en-GB"),
 
         punchIn: punchIn
-          ? new Date(punchIn.createdAt).toLocaleTimeString("en-IN", {
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: true,
-          })
-          : "-",
+          ? {
+            location: punchIn.displayName,
+            time: new Date(punchIn.createdAt).toLocaleTimeString("en-IN", {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: true,
+            })
+          }
+          : undefined,
 
         punchOut: punchOut
-          ? new Date(punchOut.createdAt).toLocaleTimeString("en-IN", {
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: true,
-          })
-          : "-",
+          ? {
+            location: punchOut.displayName,
+            time: new Date(punchOut.createdAt).toLocaleTimeString("en-IN", {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: true,
+            })
+          }
+          : undefined,
 
         workingHours: formatMinutes(att.totalWorkMinutes),
         overtimeHours: formatMinutes(att.overtimeMinutes),
@@ -49,6 +55,9 @@ export const getMonthlyTableData = (
           att.leaveStatus === "NONE"
             ? "Present"
             : att.leaveStatus,
+
+        lateInReason: att.lateInReason ?? undefined,
+        earlyOutReason: att.earlyOutReason ?? undefined,
       };
     });
 };
