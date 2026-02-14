@@ -188,6 +188,14 @@ export async function markAttendance({
           }
         }
 
+        // IF ATTENDANCE DOES NOT EXIST AND EMPLOYEE MARKED PUNCH OUT, SHOW ERROR
+        if (punchData.type == 'OUT') {
+          return {
+            status: "error",
+            message: "Cannot punch Out before punching IN",
+          };
+        }
+
         // 8. IF EMPLOYEE EXISTS AND ATTENDANCE DOESNT, THEN CREATE ATTENDANCE FOR EMPLOYEE
         const attendance = await tx.attendance.create({
           data: {
