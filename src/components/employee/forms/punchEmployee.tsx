@@ -272,7 +272,17 @@ export default function PunchEmployee({ employeeId, attendance }: { employeeId: 
                                   <Label className="mb-1">Punch Type</Label>
                                   <Select
                                     value={field.value ?? ""}
-                                    onValueChange={(val) => field.onChange(val || undefined)}
+                                    onValueChange={(val) => {
+                                      field.onChange(val || undefined);
+
+                                      if(val == 'IN'){
+                                        form.resetField("earlyOutReason");
+                                      }
+
+                                      if(val == 'OUT'){
+                                        form.resetField("lateInReason");
+                                      }
+                                    }}
                                   >
                                     <FormControl>
                                       <SelectTrigger className="w-full" disabled={leaveStatus == 'FULL'}>
