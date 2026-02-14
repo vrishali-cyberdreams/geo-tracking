@@ -8,6 +8,7 @@ import { Calendar } from "../ui/calendar";
 import { CalendarDay, Modifiers } from "react-day-picker";
 import { AttendanceWithRelations } from "@/actions/attendance.actions";
 import { Punch } from "@prisma/client";
+import { formatMinutes } from "@/utils/generateMonthlyReport";
 
 export function EmployeeLocationCalendar({ attendance, selectedDate }: { attendance: AttendanceWithRelations[]; selectedDate: Date; }) {
   // const [attendance, setAttendance] = useState<AttendanceWithRelations[]>([]);
@@ -49,6 +50,17 @@ export function EmployeeLocationCalendar({ attendance, selectedDate }: { attenda
     return map;
   }, [attendance]);
 
+  const attendanceByDate = useMemo(() => {
+    const map = new Map<string, AttendanceWithRelations>();
+
+    attendance.forEach(day => {
+      const key = format(new Date(day.createdAt), "yyyy-MM-dd");
+      map.set(key, day);
+    });
+
+    return map;
+  }, [attendance]);
+
   const DayButtonWrapper = useCallback(({
     day,
     modifiers,
@@ -62,6 +74,7 @@ export function EmployeeLocationCalendar({ attendance, selectedDate }: { attenda
     const date = day.date;
     const key = format(date, "yyyy-MM-dd");
     const dayLocs = punchesByDate.get(key);
+    const attendance = attendanceByDate.get(key);
 
     if (!dayLocs?.length) {
       return (
@@ -94,41 +107,47 @@ export function EmployeeLocationCalendar({ attendance, selectedDate }: { attenda
           </TooltipTrigger>
           <TooltipContent className="w-64 p-2 whitespace-pre-wrap max-h-48 overflow-auto">
             <p className="font-medium mb-1">Punches:</p>
-            <pre className="text-sm">{content}</pre>
+            <pre className="text-sm mb-2">{content}</pre>
+
+            <p className="font-medium mb-1">Working Hours: <span className="font-normal text-sm">{formatMinutes(attendance?.totalWorkMinutes ?? 0)}</span></p>
+            <p className="font-medium mb-1">Overtime Hours: <span className="font-normal text-sm">{formatMinutes(attendance?.overtimeMinutes ?? 0)}</span></p>
+            <p className="font-medium mb-1">Leave Status: <span className="font-normal text-sm">{attendance?.leaveStatus == 'NONE' ? 'PRESENT': attendance?.leaveStatus}</span></p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
     );
-  }, [punchesByDate]);
+  }, [punchesByDate, attendanceByDate]);
 
   return (
-    <Calendar
-      mode="single"
-      month={selectedDate}
-      onMonthChange={() => { }}
-      components={{
-        DayButton: DayButtonWrapper,
-      }}
-      formatters={{
-        formatWeekdayName: (date) => {
-          return date.toLocaleDateString('en-US', { weekday: 'long' });
-        },
-      }}
-      className="w-full [&_table]:w-full [&_tbody]:gap-0 [&_tr]:gap-0"
-      classNames={{
-        months: "w-full",
-        month: "w-full space-y-2", // control spacing between caption and grid
-        table: "w-full border-collapse",
-        head_row: "flex w-full",
-        head_cell: "flex-1 text-center",
-        row: "flex w-full", // removes gap between rows
-        cell: "flex-1 p-0", // removes padding, lets day button control spacing
-        day: "w-full h-9", // controls height of each day cell
-      }}
-      showOutsideDays={false}
-      captionLayout="label"
-      fromMonth={selectedDate}
-      toMonth={selectedDate}
-    />
+    <div className="border p-4 rounded-xl">
+      <Calendar
+        mode="single"
+        month={selectedDate}
+        onMonthChange={() => { }}
+        components={{
+          DayButton: DayButtonWrapper,
+        }}
+        formatters={{
+          formatWeekdayName: (date) => {
+            return date.toLocaleDateString('en-US', { weekday: 'long' });
+          },
+        }}
+        className="w-full [&_table]:w-full [&_tbody]:gap-0 [&_tr]:gap-0"
+        classNames={{
+          months: "w-full",
+          month: "w-full space-y-2", // control spacing between caption and grid
+          table: "w-full border-collapse",
+          head_row: "flex w-full",
+          head_cell: "flex-1 text-center",
+          row: "flex w-full", // removes gap between rows
+          cell: "flex-1 p-0", // removes padding, lets day button control spacing
+          day: "w-full h-9", // controls height of each day cell
+        }}
+        showOutsideDays={false}
+        captionLayout="label"
+        fromMonth={selectedDate}
+        toMonth={selectedDate}
+      />
+    </div>
   );
 }
